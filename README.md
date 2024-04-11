@@ -25,24 +25,3 @@ The fraud risk comfirmed by hospital set $S$ is $y_S=\max_{s\in S} y_s$, which i
 The HosInvestigation dataset encompasses approximately one year's worth of data. Each claim typically involves around 6 candidate hospitals on average, with some claims considering up to 30 hospitals. This results in a dataset comprising 450,000 single-hospital samples and 7 million multi-hospital samples. 
 In our models, claim features consist of the user's profile and claim-specific details, including the time interval between policy inception and claim submission.
 Hospital features encompass their location, key departments, and historical comfirmation rate of claim fraud, among other relevant data.
-
-# Project Structure
-```
-CEROS
-├─ SSCM  # The fraud probability estimator within the CEROS framework. SSCM captures the diminishing marginal return characteristic common in finance.
-│  ├─ Baseline_NN_model.py  # SSCM的Baseline，DRSA-Net和SSCM_Ind.
-│  ├─ SSCM_v1.py  # The proposed SSCM, complex feature processing version.
-│  └─ SSCM_v2.py  # The proposed SSCM, simplified feature processing version.
-└─ PDA-SP  # Dual variable optimizer for online decision-making within the CEROS framework. PDA-SP efficiently and theoretically searches the optimal dual parameters.
-   ├─ algs  # The submodular optimization algorithms.
-   │  ├─ greedy_general.py # Weak submodular optimization algorithm for PDA-SP.
-   │  └─ guessK_greedy_general.py  # Strong submodular optimization algorithm [4] for PDA-SP.
-   ├─ funcs  # Essential functions.
-   │  ├─ funcs_mine.py  # File read/write operations.
-   │  ├─ key_funcs_notorch.py  # Necessary functions for PDA-SP.
-   │  ├─ key_funcs.py  # Necessary functions for PDA.
-   │  └─ normal_funcs.py
-   ├─ PDA-SP.py  # The proposed method for dual variables updating.
-   └─ PDA.py  # Baseline, includes PDA-Adam, PDA-Adam-lrDecay, and PDA-Adam-GRS
-```
-
