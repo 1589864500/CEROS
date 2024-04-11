@@ -74,7 +74,7 @@ Specifically, the point-wise encoding layer encodes the features of individual i
 The set-wise aggregation layer explores the correlation between different items, followed by fraud probability estimation layer for prediction.
 Each layer is designed to ensure the submodularity and monotonicity with some specific constraints.
 And the following loss function is introduced to facilitate the learning process:
-$l(p,y) = -\left((1+y) \log(1+p) + (1-y) \log(1-p) \right) + y \log4\$.
+$l(p,y) = -((1+y) \log(1+p) + (1-y) \log(1-p) ) + y \log4\$.
 
 ## Baseline of SSCM
 The baselines of SSCM employ the point-wise models that assume the independence of items for the set-wise classification task. Specifically, the model is trained using individual item samples, and the set-wise probability is computed under the independence assumption, neglecting any inter-item correlations.
@@ -95,8 +95,8 @@ The objective of PDA-SP is to search the optimal dual variables (weights) for th
 
 The submodular optimization algorithms are implemented in `greedy_general.py` and `guessK_greedy_general.py`. The former implements a naive greedy algorithm starting from an empty set with a sample complexity of $O(N^2)$, while the latter implements an enumerate/guess-K greedy algorithm starting from enumerating sets of size $K=3$, performing simple greedy steps $C_N^3$ times, with a sample complexity reduced to approximately $O(N^4)$ through engineering optimizations [4]. Both methods theoretically provide a lower bound guarantee of 1-1/$\epsilon$ for most problems with simple constraints [3]. The guess-K greedy algorithm is recommended, as it is guaranteed to be no worse than the naive greedy algorithm.
 
-The piecewise linear characteristics of the objective function with respect to the components of the dual variables are primarily manifested when the variables $\xi_{-k}$, excluding the dual variable component $\xi_k$ to be updated, are fixed. The objective function $\mathcal{L}(S_u|\mathbf{\xi})= F(S_u|u)-\sum_{k=1}^{M}\xi_kG_k(S_u|u)$ (Equation (8) in the paper) transforms into a piecewise linear function with respect to $\xi_k$, where both $G(\cdot)$ and $F(\cdot)$ become constant terms. This transformation is demonstrated in L#506-514 of the paper:
-$\mathcal{L}(\xi_k)= f(\xi_k|u,S^t_u,\mathbf{\xi}^t_{-k})=-G_k(S^t_u|u)\xi_k-\sum_{k'=1,k'\neq k}^M\xi^t_{k'}G_{k'}(S^t_u|u)+F(S^t_u|u)$.
+The piecewise linear characteristics of the objective function with respect to the components of the dual variables are primarily manifested when the variables $\xi_{-k}$, excluding the dual variable component $\xi_k$ to be updated, are fixed. The objective function $\mathcal{L}(S_u|\xi)= F(S_u|u)-\sum_{k=1}^{M}\xi_kG_k(S_u|u)$ (Equation (8) in the paper) transforms into a piecewise linear function with respect to $\xi_k$, where both $G(\cdot)$ and $F(\cdot)$ become constant terms. This transformation is demonstrated in L#506-514 of the paper:
+$\mathcal{L}(\xi_k)= f(\xi_k|u,S^t_u,\xi^t_{-k})=-G_k(S^t_u|u)\xi_k-\sum_{k'=1,k'\neq k}^M\xi^t_{k'}G_{k'}(S^t_u|u)+F(S^t_u|u)$.
 Analyzing this formula allows for the determination of the nearest left and right segment endpoints in the domain relative to the variables $\mathbf{\xi}_{-k}$ to be updated. Updating directly at these endpoints significantly enhances the efficiency of updates. Furthermore, Theorem 4.2 in the paper provides robust theoretical support under the assumption of monotonic submodularity.
 
 ## Baseline of PAD-SP
