@@ -2,6 +2,7 @@
 data/preprocess
 data/preprocess/*
 -*
+*.DS_Store
 
 # 不能使用data取消追踪data文件夹，否则下面的!语句不会生效
 data/**
