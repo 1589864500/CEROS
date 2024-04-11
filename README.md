@@ -60,6 +60,10 @@ Table 1 Differences between SSCM and comparison methods
 
 *The submodularity of SSCM_Ind, DRSA-Net and lightGBM rely on the single-item modeling and independence assumption, which is an important contribution of CEROS, by capturing inter-project dependencies.*
 
+*Modeling submodularity/diminishing marginal return is grounded in reality, a common scenario in the financial domain. For instance, when adding a new hospital $t$ to two combinations of hospitals, $A$ and $B$ ($A\subseteq B$), since the overlap between $B$ and $t$ is at least not less than that between $A$ and $t$, the increase in fraud probability that $t$ brings to $B$ will always be less than the increase it brings to $A$.*
+
+*Modeling correlation among information resources is also grounded in reality, a facet previously overlooked in past work [1]. For instance, consider two identical hospitals, each with a fraud probability of 0.5 for claim investigation. After accounting for correlation, the combined fraud probability of the claim remains 0.5, contrary to the 0.75 predicted by the independence assumption. Especially in the insurance domain, where hospitals are limited yet significant, it is crucial to fully explore the information within the data.*
+
 
 Table 2 Differences between PDA-SP and comparison methods
 | Techs & Meths | PDA-SP | PDA-Adam | PDA-Adam-lrDecay | PDA-Adam-GRS |
