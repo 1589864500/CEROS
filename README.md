@@ -28,14 +28,53 @@ The HosInvestigation dataset encompasses approximately one year's worth of data.
 In our models, claim features consist of the user's profile and claim-specific details, including the time interval between policy inception and claim submission.
 Hospital features encompass their location, key departments, and historical comfirmation rate of claim fraud, among other relevant data.
 
+# Project Structure
+```
+CEROS
+├─ SSCM  # The fraud probability estimator within the CEROS framework. SSCM captures the diminishing marginal return characteristic common in finance.
+│  ├─ Baseline_NN_model.py  # SSCM的Baseline，DRSA-Net和SSCM_Ind.
+│  ├─ SSCM_v1.py  # The proposed SSCM, complex feature processing version.
+│  └─ SSCM_v2.py  # The proposed SSCM, simplified feature processing version.
+└─ PDA-SP  # Dual variable optimizer for online decision-making within the CEROS framework. PDA-SP efficiently and theoretically searches the optimal dual parameters.
+   ├─ algs  # The submodular optimization algorithms.
+   │  ├─ greedy_general.py # Weak submodular optimization algorithm for PDA-SP.
+   │  └─ guessK_greedy_general.py  # Strong submodular optimization algorithm [4] for PDA-SP.
+   ├─ funcs  # Essential functions.
+   │  ├─ funcs_mine.py  # File read/write operations.
+   │  ├─ key_funcs_notorch.py  # Necessary functions for PDA-SP.
+   │  ├─ key_funcs.py  # Necessary functions for PDA.
+   │  └─ normal_funcs.py
+   ├─ PDA-SP.py  # The proposed method for dual variables updating.
+   └─ PDA.py  # Baseline, includes PDA-Adam, PDA-Adam-lrDecay, and PDA-Adam-GRS
+```
 
+
+# Method Implementations
+## Outline
+Table 1 Differences between SSCM and comparison methods
+| Techs & Meths | SSCM | SSCM_Ind | DRSA-Net | lightGBM |
+|---------|--------|----------|------------------|--------------|
+| Sample Type | Set-wise | Point-wise | Point-wise | Point-wise |
+| Submodularity | &#10003;   | &#10003; |  &#10003;  | &#10003; |
+| Correlation   | &#10003;   | &#10007; |  &#10007;  | &#10007; |
+
+*The submodularity of SSCM_Ind, DRSA-Net and lightGBM rely on the single-item modeling and independence assumption, which is an important contribution of CEROS, by capturing inter-project dependencies.*
+
+
+Table 2 Differences between PDA-SP and comparison methods
+| Techs & Meths | PDA-SP | PDA-Adam | PDA-Adam-lrDecay | PDA-Adam-GRS |
+|---------|--------|----------|------------------|--------------|
+| Parameter Search Method  | Gradient + Analytical Expression   | Gradient |   Gradient  | Gradient |
+| Submodularity | &#10003;   | &#10003; |  &#10003;   | &#10007; |
+| Piecewise Linear Characteristics  | &#10003;   | &#10007; |   &#10007;  | &#10007; |
 ## SSCM
 The objective of SSCM is to estimate the monotone submodular probability for a item set, such as the insurers or hospitals.
 Unlike models that rely on the single-item modeling and independence assumption, SSCM captures the correlations among items with a data-driven manner. SSCM consists of three layers: point-wise encoding layer, set-wise aggregation layer and fraud probability estimation layer.
 Specifically, the point-wise encoding layer encodes the features of individual items in the set, which can apply MLP or some effective network architecture for tabular data [2].
 The set-wise aggregation layer explores the correlation between different items, followed by fraud probability estimation layer for prediction.
 Each layer is designed to ensure the submodularity and monotonicity with some specific constraints.
-And the following loss function is introduced to facilitate the learning process.
+And the following loss function is introduced to facilitate the learning process:
+$l(p,y) = -\left((1+y) \log(1+p) + (1-y) \log(1-p) \right) + y \log4\$.
 
 ## Baseline of SSCM
 The baselines of SSCM employ the point-wise models that assume the independence of items for the set-wise classification task. Specifically, the model is trained using individual item samples, and the set-wise probability is computed under the independence assumption, neglecting any inter-item correlations.
@@ -56,6 +95,9 @@ The objective of PDA-SP is to search the optimal dual variables (weights) for th
 
 The submodular optimization algorithms are implemented in `greedy_general.py` and `guessK_greedy_general.py`. The former implements a naive greedy algorithm starting from an empty set with a sample complexity of $O(N^2)$, while the latter implements an enumerate/guess-K greedy algorithm starting from enumerating sets of size $K=3$, performing simple greedy steps $C_N^3$ times, with a sample complexity reduced to approximately $O(N^4)$ through engineering optimizations [4]. Both methods theoretically provide a lower bound guarantee of 1-1/$\epsilon$ for most problems with simple constraints [3]. The guess-K greedy algorithm is recommended, as it is guaranteed to be no worse than the naive greedy algorithm.
 
+The piecewise linear characteristics of the objective function with respect to the components of the dual variables are primarily manifested when the variables $\xi_{-k}$, excluding the dual variable component $\xi_k$ to be updated, are fixed. The objective function $\mathcal{L}(S_u|\mathbf{\xi})= F(S_u|u)-\sum_{k=1}^{M}\xi_kG_k(S_u|u)$ (Equation (8) in the paper) transforms into a piecewise linear function with respect to $\xi_k$, where both $G(\cdot)$ and $F(\cdot)$ become constant terms. This transformation is demonstrated in L#506-514 of the paper:
+$\mathcal{L}(\xi_k)= f(\xi_k|u,S^t_u,\mathbf{\xi}^t_{-k})=-G_k(S^t_u|u)\xi_k-\sum_{k'=1,k'\neq k}^M\xi^t_{k'}G_{k'}(S^t_u|u)+F(S^t_u|u)$.
+Analyzing this formula allows for the determination of the nearest left and right segment endpoints in the domain relative to the variables $\mathbf{\xi}_{-k}$ to be updated. Updating directly at these endpoints significantly enhances the efficiency of updates. Furthermore, Theorem 4.2 in the paper provides robust theoretical support under the assumption of monotonic submodularity.
 
 ## Baseline of PAD-SP
 ### PDA-Adam
