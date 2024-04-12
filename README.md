@@ -22,7 +22,8 @@ On average, users are associated with about 2 candidate insurers, with a maximum
 For modeling, the user features include basic profile information, credit ratings and statistical data, while insurers are represented solely by their ID.
 
 (b) HosInvestigation. This dataset relates to the scenario of claim investigation when users submit a insurance claim. The platform has to allocate a set of hospitals for each claim, and auditors examine the medical records from each allocated hospital to ascertain if there are undisclosed pre-existing conditions associated with the claim. Therefore, a optimal set of hospitals that maximizes the detection of fraudulent claims while adhering to some global constraints is desired. This involves estimating the fraud probability as confirmed by multiple hospitals and then allocating an appropriate set of hospitals for a thorough investigation. 
-Specifically, we define the indicator: $y_s=1$ if auditor confirms the claim's fraud risk based on the information in hospital $s$;
+Specifically, we define the indicator: $y_s=1$ if auditor confirms the claim's fraud risk based on the information in hospital 
+$s$;
 otherwise $y_s=0$.
 The fraud risk comfirmed by hospital set $S$ is $y_S=\max_{s\in S} y_s$, which is same as the formulation in InsComAllocation with monotonicity and submodularity properties.
 The HosInvestigation dataset encompasses approximately one year's worth of data. Each claim typically involves around 6 candidate hospitals on average, with some claims considering up to 30 hospitals. This results in a dataset comprising 450,000 single-hospital samples and 7 million multi-hospital samples. 
